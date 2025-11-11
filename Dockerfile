@@ -13,7 +13,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Copy file JAR đã build (dùng wildcard để linh hoạt)
-COPY target/*-SNAPSHOT.jar app.jar
+COPY target/*-SNAPSHOT.jar .
 
 # Expose port (Render yêu cầu, dù port động)
 EXPOSE 8082
