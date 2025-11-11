@@ -1,22 +1,29 @@
-# Sử dụng OpenJDK 21 chính thức (Eclipse Temurin - nhẹ, ổn định)
-FROM eclipse-temurin:21-jdk-alpine
+# ===============================
+# 🏗️ Stage 1: Build ứng dụng bằng Maven
+# ===============================
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 
-# Cài Maven (bắt buộc)
-RUN apk add --no-cache maven
-
-# Tạo thư mục làm việc
 WORKDIR /app
 
+# Copy toàn bộ mã nguồn vào container build
 COPY . .
 
-# Build JAR
+# Build JAR (bỏ qua test cho nhanh)
 RUN mvn clean package -DskipTests
 
-# Copy file JAR đã build (dùng wildcard để linh hoạt)
-COPY target/*-SNAPSHOT.jar .
 
-# Expose port (Render yêu cầu, dù port động)
+# ===============================
+# 🚀 Stage 2: Runtime (chạy ứng dụng)
+# ===============================
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Copy file JAR đã build từ stage trước
+COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
+
+# Expose port (Render tự gán port runtime, nhưng nên khai báo)
 EXPOSE 8082
 
-# Chạy ứng dụng với tối ưu JVM cho container
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app/app.jar"]
+# Chạy ứng dụng
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
