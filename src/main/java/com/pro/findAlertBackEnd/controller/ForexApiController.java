@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.UnknownHostException;
+
 @RestController
 @RequestMapping("/api/forex")
 public class ForexApiController {
@@ -18,7 +20,7 @@ public class ForexApiController {
     }
 
     @GetMapping("/calendar/details-event")
-    public ResponseEntity<?> getOne(@RequestParam @NonNull Long eventId) {
+    public ResponseEntity<?> getOne(@RequestParam @NonNull Long eventId) throws UnknownHostException {
         var body = forexService.detailsEvent(eventId);
         return ResponseEntity.ok(body);
     }
