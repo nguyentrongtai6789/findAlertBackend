@@ -27,8 +27,7 @@ public class ForexService {
     @Cacheable(value = "detailsEvent", key = "#eventId")
     public Mono<EventDetailResponse> detailsEvent(Long eventId) {
         String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
-                "&url=https://www.forexfactory.com/calendar/details/1-" + eventId +
-                "&render=true";
+                "&url=https://www.forexfactory.com/calendar/details/1-" + eventId;
         return webClient
                 .get()
                 .uri(scraperUrl)
