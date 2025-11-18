@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EventDetailResponse {
+public class DetailsEventResponse {
     private Data data;
 
     @NoArgsConstructor
