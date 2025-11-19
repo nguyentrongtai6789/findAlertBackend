@@ -8,7 +8,9 @@ import com.pro.findAlertBackEnd.model.response.DetailsEventResponse;
 import com.pro.findAlertBackEnd.service.IForexService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -23,7 +25,12 @@ public class ForexService implements IForexService {
     private static final String SCRAPER_API_KEY = "d6d4bf0c0685e24e605e2362ee1c9f55";
 
     public ForexService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClientBuilder.exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer
+                                .defaultCodecs()
+                                .maxInMemorySize(10 * 1024 * 1024)) // 10MB
+                        .build())
+                .build();
     }
 
     @Cacheable(value = "detailsEvent", key = "#eventId")
@@ -47,6 +54,23 @@ public class ForexService implements IForexService {
 
     @Override
     public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
-        return null;
+//        String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
+//                "&url=https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
+        String scraperUrl = "https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
+        return webClient
+                .post()
+                .uri(scraperUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(jsonString -> {
+                    try {
+                        return objectMapper.readValue(jsonString, ApplySettingsResponse.class);
+                    } catch (JsonProcessingException e) {
+                        log.error("Failed to parse JSON to ApplySettingsResponse", e);
+                        return new ApplySettingsResponse();
+                    }
+                });
     }
 }

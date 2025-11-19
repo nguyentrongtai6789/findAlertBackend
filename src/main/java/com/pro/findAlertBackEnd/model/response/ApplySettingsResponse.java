@@ -102,6 +102,7 @@ public class ApplySettingsResponse {
         private String timeLabel;
         private Long dateline;
         private String impactName;
+        private String country;
         private String impactTitle;
         private Long ebaseId;
         private String prefixedName;
