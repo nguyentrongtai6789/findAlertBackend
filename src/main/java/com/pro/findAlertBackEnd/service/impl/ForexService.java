@@ -2,6 +2,8 @@ package com.pro.findAlertBackEnd.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pro.findAlertBackEnd.model.request.ApplySettingsRequest;
+import com.pro.findAlertBackEnd.model.response.ApplySettingsResponse;
 import com.pro.findAlertBackEnd.model.response.DetailsEventResponse;
 import com.pro.findAlertBackEnd.service.IForexService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +43,10 @@ public class ForexService implements IForexService {
                         return new DetailsEventResponse();
                     }
                 });
+    }
+
+    @Override
+    public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
+        return null;
     }
 }
