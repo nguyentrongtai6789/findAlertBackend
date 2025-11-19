@@ -8,10 +8,10 @@ import lombok.Setter;
 
 import java.util.List;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
 public class DetailsEventResponse {
     private Data data;
 

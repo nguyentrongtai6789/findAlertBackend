@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface IForexService {
     Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId);
+//    Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId);
 }
