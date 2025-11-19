@@ -34,6 +34,7 @@ public class ForexService implements IForexService {
     }
 
     @Cacheable(value = "detailsEvent", key = "#eventId")
+    @Override
     public Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId) {
         String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
                 "&url=https://www.forexfactory.com/calendar/details/1-" + eventId;
@@ -52,11 +53,12 @@ public class ForexService implements IForexService {
                 });
     }
 
+    @Cacheable(value = "applySettings", key = "#request")
     @Override
     public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
-//        String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
-//                "&url=https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
-        String scraperUrl = "https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
+        String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
+                "&url=https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
+//        String scraperUrl = "https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
         return webClient
                 .post()
                 .uri(scraperUrl)
