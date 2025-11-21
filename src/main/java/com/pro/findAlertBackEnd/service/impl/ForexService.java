@@ -1,10 +1,9 @@
 package com.pro.findAlertBackEnd.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pro.findAlertBackEnd.model.request.ApplySettingsRequest;
 import com.pro.findAlertBackEnd.model.response.ApplySettingsResponse;
 import com.pro.findAlertBackEnd.model.response.DetailsEventResponse;
+import com.pro.findAlertBackEnd.model.response.HistoryEventResponse;
 import com.pro.findAlertBackEnd.service.IForexService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +18,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ForexService implements IForexService {
     private final WebClient webClient;
-
-    private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson
 
     @Value("${scraper.api.key}")
     private String SCRAPER_API_KEY;
@@ -43,42 +40,52 @@ public class ForexService implements IForexService {
     @Cacheable(value = "detailsEvent", key = "#eventId")
     @Override
     public Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId) {
-        String scraperUrl = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
                 "&url=" + FOREX_URL + "/calendar/details/1-" + eventId;
         return webClient
                 .get()
-                .uri(scraperUrl)
+                .uri(url)
                 .retrieve()
-                .bodyToMono(String.class)
-                .map(jsonString -> {
-                    try {
-                        return objectMapper.readValue(jsonString, DetailsEventResponse.class);
-                    } catch (JsonProcessingException e) {
-                        log.error("Failed to parse JSON for eventId: {}", eventId, e);
-                        return new DetailsEventResponse();
-                    }
+                .bodyToMono(DetailsEventResponse.class)
+                .onErrorResume(e -> {
+                    log.error("Failed to fetch DetailsEventResponse: ", e);
+                    return Mono.just(new DetailsEventResponse());
                 });
     }
 
     @Cacheable(value = "applySettings", key = "#request")
     @Override
     public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
-        String scraperUrl = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
                 "&url=" + FOREX_URL + "/calendar/apply-settings/100000?navigation=1";
         return webClient
                 .post()
-                .uri(scraperUrl)
+                .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(String.class)
-                .map(jsonString -> {
-                    try {
-                        return objectMapper.readValue(jsonString, ApplySettingsResponse.class);
-                    } catch (JsonProcessingException e) {
-                        log.error("Failed to parse JSON to ApplySettingsResponse", e);
-                        return new ApplySettingsResponse();
-                    }
+                .bodyToMono(ApplySettingsResponse.class)
+                .onErrorResume(e -> {
+                    log.error("Failed to fetch ApplySettingsResponse: ", e);
+                    return Mono.just(new ApplySettingsResponse());
                 });
     }
+
+    @Cacheable(value = "historyEvent", key = "#eventId + '-' + #page")
+    @Override
+    public Mono<HistoryEventResponse> getHistoryEvent(Long eventId, Integer page) {
+        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+                "&url=" + FOREX_URL + "/calendar/history/1-" + eventId + "?i=" + page;
+        return webClient
+                .post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(HistoryEventResponse.class)
+                .onErrorResume(e -> {
+                    log.error("Failed to fetch HistoryEventResponse", e);
+                    return Mono.just(new HistoryEventResponse());
+                });
+    }
+
 }

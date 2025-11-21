@@ -44,7 +44,7 @@ public class DetailsEventResponse {
     @AllArgsConstructor
     @Setter
     @Getter
-    private static class History {
+    public static class History {
         @JsonProperty("has_data_values")
         private boolean hasDataValues;
         private List<Event> events;

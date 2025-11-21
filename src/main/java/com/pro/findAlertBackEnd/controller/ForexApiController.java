@@ -26,4 +26,10 @@ public class ForexApiController {
         var body = forexService.getApplySettings(request);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/calendar/history-event")
+    public ResponseEntity<?> getHistoryEvent(@RequestParam @NonNull Long eventId, @RequestParam @NonNull Integer page) {
+        var body = forexService.getHistoryEvent(eventId, page);
+        return ResponseEntity.ok(body);
+    }
 }
