@@ -7,6 +7,7 @@ import com.pro.findAlertBackEnd.model.response.ApplySettingsResponse;
 import com.pro.findAlertBackEnd.model.response.DetailsEventResponse;
 import com.pro.findAlertBackEnd.service.IForexService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,20 @@ public class ForexService implements IForexService {
 
     private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson
 
-    private static final String SCRAPER_API_KEY = "d6d4bf0c0685e24e605e2362ee1c9f55";
+    @Value("${scraper.api.key}")
+    private String SCRAPER_API_KEY;
+
+    @Value("${scraper.url}")
+    private String SCRAPER_URL;
+
+    @Value("${forex.url}")
+    private String FOREX_URL;
 
     public ForexService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer
                                 .defaultCodecs()
-                                .maxInMemorySize(10 * 1024 * 1024)) // 10MB
+                                .maxInMemorySize(10 * 1024 * 1024))
                         .build())
                 .build();
     }
@@ -36,8 +44,8 @@ public class ForexService implements IForexService {
     @Cacheable(value = "detailsEvent", key = "#eventId")
     @Override
     public Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId) {
-        String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
-                "&url=https://www.forexfactory.com/calendar/details/1-" + eventId;
+        String scraperUrl = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+                "&url=" + FOREX_URL + "/calendar/details/1-" + eventId;
         return webClient
                 .get()
                 .uri(scraperUrl)
@@ -56,9 +64,8 @@ public class ForexService implements IForexService {
     @Cacheable(value = "applySettings", key = "#request")
     @Override
     public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
-        String scraperUrl = "https://api.scraperapi.com/?api_key=" + SCRAPER_API_KEY +
-                "&url=https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
-//        String scraperUrl = "https://www.forexfactory.com/calendar/apply-settings/100000?navigation=1";
+        String scraperUrl = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+                "&url=" + FOREX_URL + "/calendar/apply-settings/100000?navigation=1";
         return webClient
                 .post()
                 .uri(scraperUrl)
