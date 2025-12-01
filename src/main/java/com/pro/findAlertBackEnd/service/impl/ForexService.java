@@ -76,8 +76,9 @@ public class ForexService implements IForexService {
     @Cacheable(value = "historyEvent", key = "#eventId + '-' + #page")
     @Override
     public Mono<HistoryEventResponse> getHistoryEvent(Long eventId, Integer page) {
-        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
-                "&url=" + FOREX_URL + "/calendar/history/1-" + eventId + "?i=" + page;
+//        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+//                "&url=" + FOREX_URL + "/calendar/history/1-" + eventId + "?i=" + page;
+        String url = FOREX_URL + "/calendar/history/1-" + eventId + "?i=" + page;
         return webClient
                 .post()
                 .uri(url)
