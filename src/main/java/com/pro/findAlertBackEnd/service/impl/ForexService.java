@@ -40,8 +40,9 @@ public class ForexService implements IForexService {
     @Cacheable(value = "detailsEvent", key = "#eventId")
     @Override
     public Mono<DetailsEventResponse> getCalendarDetailsEvent(Long eventId) {
-        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
-                "&url=" + FOREX_URL + "/calendar/details/1-" + eventId;
+//        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+//                "&url=" + FOREX_URL + "/calendar/details/1-" + eventId;
+        String url = FOREX_URL + "/calendar/details/1-" + eventId;
         return webClient
                 .get()
                 .uri(url)
@@ -56,8 +57,9 @@ public class ForexService implements IForexService {
     @Cacheable(value = "applySettings", key = "#request")
     @Override
     public Mono<ApplySettingsResponse> getApplySettings(ApplySettingsRequest request) {
-        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
-                "&url=" + FOREX_URL + "/calendar/apply-settings/100000?navigation=1";
+//        String url = SCRAPER_URL + "/?api_key=" + SCRAPER_API_KEY +
+//                "&url=" + FOREX_URL + "/calendar/apply-settings/100000?navigation=1";
+        String url = FOREX_URL + "/calendar/apply-settings/100000?navigation=1";
         return webClient
                 .post()
                 .uri(url)
