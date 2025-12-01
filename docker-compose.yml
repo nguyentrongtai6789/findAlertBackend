@@ -1,0 +1,66 @@
+version: "3.9"
+
+# =====================================================
+# 🔧 Environment dùng chung (YAML anchor)
+# =====================================================
+x-java-environment: &java-environment
+  JAVA_OPTS: "-Xms512m -Xmx1024m"
+  SPRING_PROFILES_ACTIVE: "prod"
+
+# =====================================================
+# 🚀 Service chính: Java App
+# =====================================================
+services:
+  java-app:
+    image: ${REG_URL}/${PROJECT_NAME}:java-${TAG}
+    working_dir: /app
+
+    environment:
+      <<: *java-environment
+      APP_ENV: production
+
+    command: ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+
+    healthcheck:
+      # dùng Spring Actuator
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    networks:
+      - app
+      - traefik_proxy
+
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first   # zero downtime deploy
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.${STACK_NAME}.rule=${TRAEFIK_WEB_HOST_RULE}
+        - traefik.http.routers.${STACK_NAME}.entrypoints=web
+        - traefik.swarm.network=traefik_proxy
+        - traefik.http.services.${STACK_NAME}.loadbalancer.server.port=8082
+        - traefik.http.services.${STACK_NAME}.loadbalancer.passhostheader=true
+        - traefik.http.middlewares.secure-headers.headers.sslHost=${TRAEFIK_HOST_RULE}
+        - traefik.http.middlewares.secure-headers.headers.sslForceHost=true
+        - traefik.http.middlewares.secure-headers.headers.sslProxyHeaders.X-Forwarded-Proto=https
+        - traefik.http.routers.${STACK_NAME}.middlewares=secure-headers
+
+# =====================================================
+# 🔗 Networks
+# =====================================================
+networks:
+  app:
+  traefik_proxy:
+    external: true

@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgument(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
         log.error("\n=============>>> MethodArgumentNotValidException <<<=============" + " API: {} {}",
                 request.getMethod(),
                 request.getRequestURI(),
