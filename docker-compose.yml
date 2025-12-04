@@ -51,11 +51,6 @@ services:
         - traefik.http.routers.${STACK_NAME}.entrypoints=web
         - traefik.swarm.network=traefik_proxy
         - traefik.http.services.${STACK_NAME}.loadbalancer.server.port=8082
-        - traefik.http.services.${STACK_NAME}.loadbalancer.passhostheader=true
-        - traefik.http.middlewares.secure-headers.headers.sslHost=${TRAEFIK_HOST_RULE}
-        - traefik.http.middlewares.secure-headers.headers.sslForceHost=true
-        - traefik.http.middlewares.secure-headers.headers.sslProxyHeaders.X-Forwarded-Proto=https
-        - traefik.http.routers.${STACK_NAME}.middlewares=secure-headers
 
 # =====================================================
 # 🔗 Networks
