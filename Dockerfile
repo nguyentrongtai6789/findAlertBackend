@@ -17,6 +17,8 @@ RUN mvn clean package -DskipTests
 # ===============================
 FROM eclipse-temurin:21-jdk-alpine
 
+RUN apk update && apk add curl
+
 WORKDIR /app
 
 # Copy file JAR đã build từ stage trước
@@ -24,6 +26,7 @@ COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 
 # Expose port (Render tự gán port runtime, nhưng nên khai báo)
 EXPOSE 8082
+
 
 # Chạy ứng dụng
 ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]

@@ -23,7 +23,7 @@ services:
 
     healthcheck:
       # dùng Spring Actuator
-      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/find-alert/actuator || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
