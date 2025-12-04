@@ -1,0 +1,45 @@
+version: "3.9"
+
+# =====================================================
+# 🔧 Environment dùng chung
+# =====================================================
+x-java-environment: &java-environment
+  JAVA_OPTS: "-Xms512m -Xmx1024m"
+  SPRING_PROFILES_ACTIVE: "local"
+
+# =====================================================
+# 🚀 Service chính: Java App (LOCAL BUILD)
+# =====================================================
+services:
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+
+    environment:
+      <<: *java-environment
+      APP_ENV: local
+
+    command: ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/find-alert/actuator || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    networks:
+      - app
+
+    # Local không cần Traefik → Nếu bạn cần, mình thêm lại sau
+    ports:
+      - "8082:8082"
+
+# =====================================================
+# 🔗 Networks
+# =====================================================
+networks:
+  app:
+    driver: bridge
