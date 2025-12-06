@@ -5,34 +5,25 @@ FROM maven:3.9.8-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# Copy toàn bộ mã nguồn vào container build
 COPY . .
 
-# Build JAR (bỏ qua test cho nhanh)
 RUN mvn clean package -DskipTests
 
 
 # ===============================
-# 🚀 Stage 2: Runtime (chạy ứng dụng)
+# 🚀 Stage 2: Runtime (bypass Cloudflare + Java 17)
 # ===============================
-#FROM eclipse-temurin:21-jdk-alpine
+FROM jonlabelle/network-tools
 
-FROM eclipse-temurin:21-jre
-
-
-RUN #apk update && apk add curl
-
-RUN apt-get update && apt-get install -y curl
-
+# Cài Java 17 (vì Alpine chỉ hỗ trợ OpenJDK 17, không có Java 21)
+RUN apk update && \
+    apk add --no-cache openjdk17-jre
 
 WORKDIR /app
 
 # Copy file JAR đã build từ stage trước
 COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 
-# Expose port (Render tự gán port runtime, nhưng nên khai báo)
 EXPOSE 8081
 
-
-# Chạy ứng dụng
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=local", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=local", "-jar", "app.jar"]

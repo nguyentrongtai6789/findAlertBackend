@@ -32,4 +32,10 @@ public class ForexApiController {
         var body = forexService.getHistoryEvent(eventId, page);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/calendar/upcoming/instrument")
+    public ResponseEntity<?> getUpcomingInstrument() {
+        var body = forexService.getDetailUpcomingInstrument();
+        return ResponseEntity.ok(body);
+    }
 }
